@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.thirdxiaozhu.Transporter;
 
 public class HostInfo {
     private String hostIP;

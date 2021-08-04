@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.thirdxiaozhu.Transporter;
 
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import java.io.File;
 import java.util.Vector;
 
 /**

@@ -1,24 +1,18 @@
-package com.example.myapplication;
+package com.thirdxiaozhu.Transporter;
 
-import android.bluetooth.BluetoothAdapter;
-import android.provider.CalendarContract;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class ChatManager {
 

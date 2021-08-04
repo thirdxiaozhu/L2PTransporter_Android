@@ -1,7 +1,6 @@
-package com.example.myapplication;
+package com.thirdxiaozhu.Transporter;
 
 import android.bluetooth.BluetoothAdapter;
-import android.os.Build;
 
 public class getDeviceInfo {
     private String deviceName;
