@@ -1,12 +1,18 @@
 package com.thirdxiaozhu.Transporter;
 
+import android.os.AsyncTask;
 import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -15,7 +21,10 @@ import java.util.Vector;
 public class MyListAdapter extends BaseAdapter {
     Vector<String> files;
     public Handler handler;
-    Runnable runable = new Runnable() {
+    private List<View> viewList;
+    private Map<String, View> posMap;
+
+    Runnable dataChanged = new Runnable() {
         @Override
         public void run() {
             notifyDataSetChanged();
@@ -25,6 +34,8 @@ public class MyListAdapter extends BaseAdapter {
     public MyListAdapter(Vector<String> files){
         handler = new Handler();
         this.files = files;
+        viewList = new Vector<>();
+        posMap = new HashMap<>();
     }
     @Override
     public int getCount() {
@@ -43,16 +54,40 @@ public class MyListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        String filename = (String)getItem(position);
+
         if(convertView == null){
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_list_cell,parent,false);
+            Log.d("TAG", position + " 被创建");
+            //通过文件名在map中设置对应的item view
+            posMap.put(filename, convertView);
         }
 
         TextView textView = (TextView)convertView.findViewById(R.id.id_item_text);
 
-        String path = (String)getItem(position);
-        textView.setText(path);
+        textView.setText(filename);
+
+        convertView.setTag(R.id.id_receive_list, position);
+        viewList.add(convertView);
 
         return convertView;
+    }
+
+    /**
+     * 到主线程中更改item的进度条(Message进行线程同步）
+     * @param updPro
+     * @param s 文件名
+     */
+    public void finishReceive(Handler updPro,String s){
+        //得到item view
+        View currview = posMap.get(s);
+
+        if(currview != null){
+            Message msg = updPro.obtainMessage();
+            msg.obj = currview;
+            updPro.sendMessage(msg);
+        }
+
     }
 
 }

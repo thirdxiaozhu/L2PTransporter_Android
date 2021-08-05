@@ -1,6 +1,8 @@
 package com.thirdxiaozhu.Transporter;
 
+import android.os.Message;
 import android.util.Log;
+import android.view.textclassifier.ConversationActions;
 
 import com.google.gson.Gson;
 
@@ -53,18 +55,19 @@ public class ChatManager {
                     mainActivity.handler.post(mainActivity.runable);
 
                     while(true){
-                        byte[] fileMessageByte = new byte[149];
+                        byte[] fileMessageByte = new byte[1024];
                         dis.read(fileMessageByte,0,fileMessageByte.length);
                         String fileMessage = new String(fileMessageByte);
 
+                        Log.d("Tag",fileMessage);
                         Log.d("Tag",ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim()));
                         Log.d("Tag",Long.parseLong( fileMessage.split("--")[2]) + "");
 
                         String fileName = ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim());
                         Long fileLength = Long.parseLong( fileMessage.split("--")[2]);
+                        mainActivity.receiveFile(ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim()));
 
-                        File file = new File(mainActivity.getExternalFilesDir("received/"+mainActivity.currentPC.getHostName()),
-                                System.currentTimeMillis()+"-"+fileName);
+                        File file = new File(mainActivity.getExternalFilesDir("received/"+mainActivity.currentPC.getHostName()), fileName);
 
                         System.out.println(file.getAbsolutePath());
                         FileOutputStream fos = new FileOutputStream(file);
@@ -90,8 +93,8 @@ public class ChatManager {
                                 bytes = new byte[Integer.parseInt(String.valueOf(fileLength))];
                             }
                         }
-
-                        mainActivity.receiveFile(ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim()));
+                        //读取完成则隐藏进度条
+                        mainActivity.listAdapter.finishReceive(mainActivity.updatebarHandler, fileName);
                     }
 
                     //writer.close();

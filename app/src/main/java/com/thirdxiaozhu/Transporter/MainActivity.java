@@ -1,5 +1,6 @@
 package com.thirdxiaozhu.Transporter;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -29,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     public HostInfo currentPC;
     public Vector<String> files;
     public MyListAdapter listAdapter;
+    public ListView receiveList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,10 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
         TextView manualLink = (TextView)findViewById(R.id.manualLink);
 
-        ListView listView = (ListView)this.findViewById(R.id.id_receive_list);
+        receiveList = (ListView)this.findViewById(R.id.id_receive_list);
         files = new Vector<>();
         listAdapter = new MyListAdapter(files);
-        listView.setAdapter(listAdapter);
+        receiveList.setAdapter(listAdapter);
 
         manualLink.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,7 +131,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void receiveFile(String s){
         listAdapter.files.add(s);
-        listAdapter.handler.post(listAdapter.runable);
+        listAdapter.handler.post(listAdapter.dataChanged);
     }
+
+    //当传输完成的时候，删除item中的progressbar
+    Handler updatebarHandler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            View curritem = (View) msg.obj;
+            curritem.findViewById(R.id.fileprogress).setVisibility(View.GONE);
+        }
+    };
 
 }
