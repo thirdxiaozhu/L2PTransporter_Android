@@ -9,12 +9,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -32,12 +34,12 @@ public class MainActivity extends AppCompatActivity {
     public Vector<String> files;
     public MyListAdapter listAdapter;
     public ListView receiveList;
+    public ConnectionClient connectionClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ChatManager.getCM().setMainActivity(this);
         handler = new Handler();
 
         TextView manualLink = (TextView)findViewById(R.id.manualLink);
@@ -79,10 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "取消扫描", Toast.LENGTH_LONG).show();
             } else {
                 try {
-                    //scanResult = result.getContents();
-                    //Gson gson = new Gson();
-                    //currentPC = gson.fromJson(scanResult, QRinfo.class);
-                    //Log.d("Tag", currentPC.getHostIP());
+                    Log.d("Tag", result.getContents());
                     connectPC(result.getContents());
                 }catch (Exception e){
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -102,8 +101,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void connectPC(String result){
-        ChatManager.getCM().connect(result);
+    private void connectPC(String IP){
+        connectionClient = new ConnectionClient(this, IP);
     }
 
 
