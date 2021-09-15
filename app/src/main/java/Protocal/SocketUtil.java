@@ -7,6 +7,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -67,7 +68,7 @@ public class SocketUtil {
      * @param inputStream
      * @return
      */
-    public static BasicProtocol readFromStream(InputStream inputStream, int i) {
+    public static BasicProtocol readFromStream(InputStream inputStream, int i, Socket socket) {
         BasicProtocol protocol;
         BufferedInputStream bis;
         byte[] header;
@@ -76,19 +77,21 @@ public class SocketUtil {
         header = new byte[BasicProtocol.LENGTH_LEN];
 
         try {
+
             bis = new BufferedInputStream(inputStream);
 
             int temp;
             int len = 0;
-            //while (len < header.length) {
-            //    if (temp > 0) {
-            //        len += temp;
-            //    } else if (temp == -1) {
-            //        bis.close();
-            //        return null;
-            //    }
-            //}
-            bis.read(header, len, header.length - len);
+            while (len < header.length) {
+                temp = bis.read(header, len, header.length - len);
+                if (temp > 0) {
+                    len += temp;
+                } else if (temp == -1) {
+                    Log.d("Tag", "isClose");
+                    bis.close();
+                    return null;
+                }
+            }
 
             len = 0;
             Log.d("Tag", "Header: " + Arrays.toString(header));
@@ -103,6 +106,12 @@ public class SocketUtil {
                     len += temp;
                 }
             }
+            bis = null;
+            bis = new BufferedInputStream(inputStream);
+            byte[] bytes = new byte[8192];
+            bis.read(bytes, 0, 8192);
+            Log.d("Tag", "BYTES:  " + Arrays.toString(bytes));
+
             protocol = parseContentMsg(content);
         } catch (IOException e) {
             e.printStackTrace();

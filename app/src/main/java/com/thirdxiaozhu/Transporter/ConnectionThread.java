@@ -333,7 +333,7 @@ public class ConnectionThread implements Runnable{
                 }
                 if (inputStream != null) {
                     Log.d("Tag", String.valueOf(i));
-                    BasicProtocol receiveData = SocketUtil.readFromStream(inputStream, i);
+                    BasicProtocol receiveData = SocketUtil.readFromStream(inputStream, i, ConnectionThread.this.socket);
                     i++;
                     if (receiveData != null) {
                         if (receiveData.getProtocolType() == 1 || receiveData.getProtocolType() == 3) {
@@ -348,6 +348,7 @@ public class ConnectionThread implements Runnable{
                             //toNotifyAll(dataQueue); //唤醒发送线程
                         }
                     } else {
+                        Log.d("Tag", "isBreak");
                         break;
                     }
                 }

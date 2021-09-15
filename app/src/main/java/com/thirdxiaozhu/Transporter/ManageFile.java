@@ -75,30 +75,23 @@ public class ManageFile {
                             fileLength = Long.parseLong(fileMessage.split("--")[2]);
                             mainActivity.receiveFile(ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim()));
 
+                            Thread.sleep(1000000);
+
                             File file = new File(mainActivity.getExternalFilesDir("received/" + mainActivity.currentPC.getHostName()), fileName);
-                            System.out.println(file.getAbsolutePath());
+                            //System.out.println(file.getAbsolutePath());
 
                             fos = new FileOutputStream(file);
-                        } else {
-                            int length = 0;
-                            long progress = 0;
+                        } else if(dataProtocol.getMsgId() == BODY){
+                            int length = dataProtocol.getData().length;
 
-                            while (((length = dataProtocol.getData().length) != -1)) {
-                                fos.write(dataProtocol.getData(), 0, length);
-                                fos.flush();
-                                progress += length;
+                            fos.write(dataProtocol.getData(), 0, length);
+                            fos.flush();
 
-                                fileLength -= length;
-                                //System.out.println(fileLength+" "+length);
-                                if (fileLength <= 0) {
-                                    break;
-                                }
-                            }
                             mainActivity.listAdapter.finishReceive(mainActivity.updatebarHandler, fileName);
                         }
                     }
                 }
-            }catch (IOException e){
+            }catch (IOException | InterruptedException e){
                 e.printStackTrace();
             }
         }

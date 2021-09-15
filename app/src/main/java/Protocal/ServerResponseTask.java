@@ -139,7 +139,7 @@ public class ServerResponseTask implements Runnable {
                     break;
                 }
 
-                BasicProtocol clientData = SocketUtil.readFromStream(inputStream, 0);
+                BasicProtocol clientData = SocketUtil.readFromStream(inputStream, 0, ServerResponseTask.this.socket);
 
                 if (clientData != null) {
                     if (clientData.getProtocolType() == 0) {
