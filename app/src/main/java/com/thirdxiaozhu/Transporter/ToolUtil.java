@@ -1,5 +1,7 @@
 package com.thirdxiaozhu.Transporter;
 
+import java.io.UnsupportedEncodingException;
+
 public class ToolUtil {
     /**
      * 字符串转十六进制字符串(无需Unicode编码）
@@ -38,4 +40,21 @@ public class ToolUtil {
         return new String(bytes);
     }
 
+    /**
+     * URI转码
+     * @param str
+     * @return
+     */
+    public static String getURLDecoderString(String str) {
+        String result = "";
+        if (null == str) {
+            return "";
+        }
+        try {
+            result = java.net.URLDecoder.decode(str, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 }

@@ -53,7 +53,6 @@ public class SocketUtil {
                 default:
                     basicProtocol = null;
             }
-            //Log.d("Tag", basicProtocol.getClass().toString());
             basicProtocol.parseContentData(data);
         } catch (Exception e) {
             basicProtocol = null;
@@ -65,21 +64,16 @@ public class SocketUtil {
     /**
      * 读数据
      *
-     * @param inputStream
      * @return
      */
-    public static BasicProtocol readFromStream(InputStream inputStream, int i, Socket socket) {
+    public static BasicProtocol readFromStream(BufferedInputStream bis) {
         BasicProtocol protocol;
-        BufferedInputStream bis;
         byte[] header;
 
         //header中保存的是整个数据的长度值，4个字节表示。在下述write2Stream方法中，会先写入header
         header = new byte[BasicProtocol.LENGTH_LEN];
 
         try {
-
-            bis = new BufferedInputStream(inputStream);
-
             int temp;
             int len = 0;
             while (len < header.length) {
@@ -94,23 +88,15 @@ public class SocketUtil {
             }
 
             len = 0;
-            Log.d("Tag", "Header: " + Arrays.toString(header));
             //数据的长度值
             int length = byteArrayToInt(header);
-            Log.d("Tag", "length:  " + length);
             byte[] content = new byte[length];
             while (len < length) {
                 temp = bis.read(content, len, length - len);
-                Log.d("Tag", "data:  " + Arrays.toString(content));
                 if (temp > 0) {
                     len += temp;
                 }
             }
-            bis = null;
-            bis = new BufferedInputStream(inputStream);
-            byte[] bytes = new byte[8192];
-            bis.read(bytes, 0, 8192);
-            Log.d("Tag", "BYTES:  " + Arrays.toString(bytes));
 
             protocol = parseContentMsg(content);
         } catch (IOException e) {
@@ -133,6 +119,7 @@ public class SocketUtil {
         byte[] header = int2ByteArrays(buffData.length);
         try {
             bufferedOutputStream.write(header);
+            bufferedOutputStream.flush();
             bufferedOutputStream.write(buffData);
             bufferedOutputStream.flush();
         } catch (IOException e) {

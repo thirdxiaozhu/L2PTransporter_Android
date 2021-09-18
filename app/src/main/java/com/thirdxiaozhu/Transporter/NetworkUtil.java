@@ -6,9 +6,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.util.Log;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
 public class NetworkUtil {
@@ -30,12 +35,7 @@ public class NetworkUtil {
     public String getIP() {
         String ip = null;
 
-        if ( wifiInfo != null) {
-            int ipAddress = wifiInfo.getIpAddress();
-            ip = intToIp(ipAddress);
-        }else{
-            //使用移动数据或者没联网的时候
-        }
+        ip = getLocalIpAddress();
 
         return ip;
     }
@@ -56,34 +56,32 @@ public class NetworkUtil {
      * 获取mac地址
      * @return
      */
-    public String getWifiMac(){
-        if(wifiInfo != null) {
-            try {
-                List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
-                for (NetworkInterface nif : all) {
-                    if (!nif.getName().equalsIgnoreCase("wlan0")) continue;
-
-                    byte[] macBytes = nif.getHardwareAddress();
-                    if (macBytes == null) {
-                        return "";
-                    }
-
-                    StringBuilder res1 = new StringBuilder();
-                    for (byte b : macBytes) {
-                        res1.append(String.format("%02X:", b));
-                    }
-
-                    if (res1.length() > 0) {
-                        res1.deleteCharAt(res1.length() - 1);
-                    }
-                    return res1.toString();
+    public String getMac(){
+        try {
+            List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface nif : all) {
+                if (!nif.getName().equalsIgnoreCase("wlan0")) {
+                    continue;
                 }
-            } catch (Exception ignored) {
+
+                byte[] macBytes = nif.getHardwareAddress();
+                if (macBytes == null) {
+                    return "";
+                }
+
+                StringBuilder res1 = new StringBuilder();
+                for (byte b : macBytes) {
+                    res1.append(String.format("%02X:", b));
+                }
+
+                if (res1.length() > 0) {
+                    res1.deleteCharAt(res1.length() - 1);
+                }
+                return res1.toString();
             }
-            return "02:00:00:00:00:00";
-        } else{
-          return null;
+        } catch (Exception ignored) {
         }
+        return "02:00:00:00:00:00";
     }
 
     private WifiInfo getWIFIInfo(){
@@ -100,4 +98,23 @@ public class NetworkUtil {
         }
     }
 
+    private String getLocalIpAddress(){
+        try{
+            Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+            while(en.hasMoreElements()){
+                NetworkInterface nif = en.nextElement();
+                Enumeration<InetAddress> enumIpAddr = nif.getInetAddresses();
+                while(enumIpAddr.hasMoreElements()){
+                    InetAddress mInetAddress = enumIpAddr.nextElement();
+                    if(!mInetAddress.isLoopbackAddress() && mInetAddress instanceof Inet4Address){
+                        return mInetAddress.getHostAddress().toString();
+                    }
+                }
+            }
+        }catch(SocketException ex){
+            Log.e("MyFeiGeActivity", "获取本地IP地址失败");
+        }
+
+        return null;
+    }
 }

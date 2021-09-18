@@ -19,7 +19,7 @@ import java.util.Vector;
  * @author jiaxv
  */
 public class MyListAdapter extends BaseAdapter {
-    Vector<String> files;
+    private Vector<String> files;
     public Handler handler;
     private List<View> viewList;
     private Map<String, View> posMap;
@@ -58,7 +58,6 @@ public class MyListAdapter extends BaseAdapter {
 
         if(convertView == null){
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_list_cell,parent,false);
-            Log.d("TAG", position + " 被创建");
             //通过文件名在map中设置对应的item view
             posMap.put(filename, convertView);
         }
@@ -78,7 +77,7 @@ public class MyListAdapter extends BaseAdapter {
      * @param updPro
      * @param s 文件名
      */
-    public void finishReceive(Handler updPro,String s){
+    public void finishTask(Handler updPro,String s){
         //得到item view
         View currview = posMap.get(s);
 

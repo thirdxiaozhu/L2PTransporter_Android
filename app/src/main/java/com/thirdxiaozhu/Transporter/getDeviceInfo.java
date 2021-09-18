@@ -1,6 +1,7 @@
 package com.thirdxiaozhu.Transporter;
 
 import android.bluetooth.BluetoothAdapter;
+import android.util.Log;
 
 public class getDeviceInfo {
     private String deviceName;
@@ -11,6 +12,7 @@ public class getDeviceInfo {
         NetworkUtil util = new NetworkUtil(mainActivity);
         getDeviceName();
         getDeviceIP(util);
+        Log.d("Tag", "IP: " + this.deviceIP);
         getDeviceMac(util);
     }
 
@@ -23,6 +25,6 @@ public class getDeviceInfo {
     }
 
     private void getDeviceMac(NetworkUtil util){
-        this.deviceMac = util.getWifiMac();
+        this.deviceMac = util.getMac();
     }
 }

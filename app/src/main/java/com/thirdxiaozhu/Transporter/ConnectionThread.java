@@ -6,6 +6,7 @@ import android.view.textclassifier.ConversationActions;
 
 import com.google.gson.Gson;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -43,7 +44,7 @@ public class ConnectionThread implements Runnable{
     //private Handler mHandler;
     private SendTask sendTask;
     private ReciveTask receiveTask;
-    //private HeartBeatTask heartBeatTask;
+    private HeartBeatTask heartBeatTask;
     private Socket socket;
     private String IP;
 
@@ -56,7 +57,7 @@ public class ConnectionThread implements Runnable{
     public ConnectionThread(MainActivity mainActivity, String IP){
         this.mainActivity = mainActivity;
         this.IP = IP;
-        manageFile = new ManageFile(mainActivity);
+        manageFile = new ManageFile(mainActivity, ConnectionThread.this);
     }
 
     @Override
@@ -73,12 +74,13 @@ public class ConnectionThread implements Runnable{
              reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
              DataInputStream dis = new DataInputStream(socket.getInputStream());
 
-             Gson gson = new Gson(); //序列化设备信息
-             writer.write(gson.toJson(new getDeviceInfo(mainActivity))+"\n"); //传到服务器（Ubuntu）
+             //序列化设备信息
+             Gson gson = new Gson();
+             writer.write(gson.toJson(new getDeviceInfo(mainActivity))+"\n");
              writer.flush();
 
              //接收服务端传来的主机信息
-             mainActivity.currentPC = gson.fromJson(reader.readLine(), HostInfo.class);
+             MainActivity.currentPC = gson.fromJson(reader.readLine(), HostInfo.class);
              mainActivity.handler.post(mainActivity.runable);
 
              //开启接收线程
@@ -87,70 +89,27 @@ public class ConnectionThread implements Runnable{
              receiveTask.start();
 
 
-             ////开启发送线程
-             //sendTask = new SendTask();
-             //sendTask.outputStream = socket.getOutputStream();
-             //sendTask.start();
+             //开启发送线程
+             sendTask = new SendTask();
+             sendTask.outputStream = socket.getOutputStream();
+             sendTask.start();
 
              //开启心跳线程
-             //if (isLongConnection) {
-             //    heartBeatTask = new HeartBeatTask();
-             //    heartBeatTask.outputStream = socket.getOutputStream();
-             //    heartBeatTask.start();
-             //}
-
-
-             //while(true){
-             //    byte[] fileMessageByte = new byte[1024];
-             //    dis.read(fileMessageByte,0,fileMessageByte.length);
-             //    String fileMessage = new String(fileMessageByte);
-
-             //    Log.d("Tag",fileMessage);
-             //    Log.d("Tag",ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim()));
-             //    Log.d("Tag",Long.parseLong( fileMessage.split("--")[2]) + "");
-
-             //    String fileName = ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim());
-             //    Long fileLength = Long.parseLong( fileMessage.split("--")[2]);
-             //    mainActivity.receiveFile(ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim()));
-
-             //    File file = new File(mainActivity.getExternalFilesDir("received/"+mainActivity.currentPC.getHostName()), fileName);
-
-             //    System.out.println(file.getAbsolutePath());
-             //    FileOutputStream fos = new FileOutputStream(file);
-
-
-             //    byte[] bytes = new byte[8192];
-             //    int length = 0;
-             //    long progress = 0;
-
-             //    while(((length = dis.read(bytes, 0, bytes.length)) != -1)) {
-
-             //        fos.write(bytes, 0, length);
-             //        fos.flush();
-             //        progress += length;
-
-             //        fileLength -= length;
-             //        //System.out.println(fileLength+" "+length);
-             //        if (fileLength == 0){
-             //            break;
-             //        }
-             //        if (fileLength < bytes.length){
-             //            //bytes = new byte[(int)fileLength];
-             //            bytes = new byte[Integer.parseInt(String.valueOf(fileLength))];
-             //        }
-             //    }
-             //    //读取完成则隐藏进度条
-             //    mainActivity.listAdapter.finishReceive(mainActivity.updatebarHandler, fileName);
-             //}
-
+             if (isLongConnection) {
+                 heartBeatTask = new HeartBeatTask();
+                 heartBeatTask.outputStream = socket.getOutputStream();
+                 heartBeatTask.start();
+             }
          } catch (Exception e) {
              e.printStackTrace();
          }
     }
 
-    public void addRequest(DataProtocol data) {
+    public void addMessage(BasicProtocol data) {
+        if(!isConnected()){
+            return;
+        }
         dataQueue.add(data);
-        Log.d("Tag", "唤醒！！");
         toNotifyAll(dataQueue);//有新增待发送数据，则唤醒发送线程
     }
 
@@ -164,7 +123,7 @@ public class ConnectionThread implements Runnable{
         toNotifyAll(dataQueue);
 
         //关闭心跳线程
-        //closeHeartBeatTask();
+        closeHeartBeatTask();
 
         //关闭socket
         closeSocket();
@@ -217,16 +176,16 @@ public class ConnectionThread implements Runnable{
     /**
      * 关闭心跳线程
      */
-    //private void closeHeartBeatTask() {
-    //    if (heartBeatTask != null) {
-    //        heartBeatTask.isCancle = true;
-    //        if (heartBeatTask.outputStream != null) {
-    //            SocketUtil.closeOutputStream(heartBeatTask.outputStream);
-    //            heartBeatTask.outputStream = null;
-    //        }
-    //        heartBeatTask = null;
-    //    }
-    //}
+    private void closeHeartBeatTask() {
+        if (heartBeatTask != null) {
+            heartBeatTask.isCancle = true;
+            if (heartBeatTask.outputStream != null) {
+                SocketUtil.closeOutputStream(heartBeatTask.outputStream);
+                heartBeatTask.outputStream = null;
+            }
+            heartBeatTask = null;
+        }
+    }
 
     private void closeSocket() {
         if (socket != null) {
@@ -281,6 +240,7 @@ public class ConnectionThread implements Runnable{
         //message.what = SUCCESS;
         //message.obj = protocol;
         //mHandler.sendMessage(message);
+        //Log.d("Tag", "成功接收Ack报文");
     }
 
     private boolean isConnected() {
@@ -323,29 +283,28 @@ public class ConnectionThread implements Runnable{
 
         private boolean isCancle = false;
         private InputStream inputStream;
+        private BufferedInputStream bis;
 
         @Override
         public void run() {
-            int i = 0;
+            bis = new BufferedInputStream(inputStream);
             while (!isCancle) {
                 if (!isConnected()) {
                     break;
                 }
                 if (inputStream != null) {
-                    Log.d("Tag", String.valueOf(i));
-                    BasicProtocol receiveData = SocketUtil.readFromStream(inputStream, i, ConnectionThread.this.socket);
-                    i++;
+                    BasicProtocol receiveData = SocketUtil.readFromStream(bis);
                     if (receiveData != null) {
                         if (receiveData.getProtocolType() == 1 || receiveData.getProtocolType() == 3) {
                             successMessage(receiveData);
                         }else if (receiveData.getProtocolType() == 0){
-                            Log.d("Tag", "dtype: " + ((DataProtocol) receiveData).getDtype() + ", pattion: " + ((DataProtocol) receiveData).getPattion() + ", msgId: " + ((DataProtocol) receiveData).getMsgId() + ", data: " + ((DataProtocol) receiveData).getData());
+                            //Log.d("Tag", "dtype: " + ((DataProtocol) receiveData).getDtype() + ", pattion: " + ((DataProtocol) receiveData).getPattion() + ", msgId: " + ((DataProtocol) receiveData).getMsgId() + ", data: " + ((DataProtocol) receiveData).getData());
                             manageFile.addMessage((DataProtocol) receiveData);
 
-                            //DataAckProtocol dataAck = new DataAckProtocol();
-                            //dataAck.setUnused("收到消息：");
-                            //dataQueue.offer(dataAck);
-                            //toNotifyAll(dataQueue); //唤醒发送线程
+                            DataAckProtocol dataAck = new DataAckProtocol();
+                            dataAck.setUnused("收到消息：");
+                            dataQueue.offer(dataAck);
+                            toNotifyAll(dataQueue); //唤醒发送线程
                         }
                     } else {
                         Log.d("Tag", "isBreak");

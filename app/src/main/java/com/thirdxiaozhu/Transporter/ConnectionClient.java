@@ -15,9 +15,15 @@ public class ConnectionClient {
         new Thread(connectionThread).start();
     }
 
-    public void addNewRequest(DataProtocol data) {
+    //public void addNewRequest(DataProtocol data) {
+    //    if (connectionThread != null && !isClosed) {
+    //        connectionThread.addMessage(data);
+    //    }
+    //}
+
+    public void addNewFd(FdClass fdClass) {
         if (connectionThread != null && !isClosed) {
-            connectionThread.addRequest(data);
+            connectionThread.manageFile.addFD(fdClass);
         }
     }
 

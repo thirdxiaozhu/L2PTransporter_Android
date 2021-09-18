@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -20,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.io.FileInputStream;
 import java.util.Vector;
 
 
@@ -30,24 +32,32 @@ public class MainActivity extends AppCompatActivity {
     public EditText messages;
     public Handler handler;
     private String scanResult;
-    public HostInfo currentPC;
-    public Vector<String> files;
-    public MyListAdapter listAdapter;
+    public static HostInfo currentPC;
+    public static Vector<String> send_files;
+    public static Vector<String> received_files;
+    public static MyListAdapter receiveListAdapter;
+    public static MyListAdapter sendListAdapter;
     public ListView receiveList;
-    public ConnectionClient connectionClient;
+    public ListView sendList;
+    public static ConnectionClient connectionClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        initPCInfo();
         handler = new Handler();
 
         TextView manualLink = (TextView)findViewById(R.id.manualLink);
 
+        received_files = new Vector<>();
         receiveList = (ListView)this.findViewById(R.id.id_receive_list);
-        files = new Vector<>();
-        listAdapter = new MyListAdapter(files);
-        receiveList.setAdapter(listAdapter);
+        receiveListAdapter = new MyListAdapter(received_files);
+        receiveList.setAdapter(receiveListAdapter);
+        send_files = new Vector<>();
+        sendList = (ListView)this.findViewById(R.id.id_send_text);
+        sendListAdapter = new MyListAdapter(send_files);
+        sendList.setAdapter(sendListAdapter);
 
         manualLink.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "取消扫描", Toast.LENGTH_LONG).show();
             } else {
                 try {
-                    Log.d("Tag", result.getContents());
                     connectPC(result.getContents());
                 }catch (Exception e){
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -111,14 +120,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void initPCInfo(){
-        EditText pcinfo = (EditText)findViewById(R.id.PCInfomation);
-        pcinfo.setText("");
-        pcinfo.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-        pcinfo.append("  主机名:  " + currentPC.getHostName() + "\n");
-        pcinfo.append("  主机IP:  " + currentPC.getHostIP() + "\n");
-        pcinfo.append("  OS:  " + currentPC.getOSName() + "\n");
-        pcinfo.append("  OS架构:  " + currentPC.getOSArch() + "\n");
-        pcinfo.append("  OS版本:  " + currentPC.getOSVersion() + "\n");
+        if(currentPC == null){
+            return;
+        }else {
+            EditText pcinfo = (EditText) findViewById(R.id.PCInfomation);
+            pcinfo.setText("");
+            pcinfo.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+            pcinfo.append("  主机名:  " + currentPC.getHostName() + "\n");
+            pcinfo.append("  主机IP:  " + currentPC.getHostIP() + "\n");
+            pcinfo.append("  OS:  " + currentPC.getOSName() + "\n");
+            pcinfo.append("  OS架构:  " + currentPC.getOSArch() + "\n");
+            pcinfo.append("  OS版本:  " + currentPC.getOSVersion() + "\n");
+        }
     }
 
     Runnable runable = new Runnable() {
@@ -128,9 +141,9 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public void receiveFile(String s){
-        listAdapter.files.add(s);
-        listAdapter.handler.post(listAdapter.dataChanged);
+    public static void receiveFile(String s){
+        received_files.add(s);
+        receiveListAdapter.handler.post(receiveListAdapter.dataChanged);
     }
 
     //当传输完成的时候，删除item中的progressbar
@@ -138,8 +151,18 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             View curritem = (View) msg.obj;
+            Log.d("Tag","Obj: " + curritem);
             curritem.findViewById(R.id.fileprogress).setVisibility(View.GONE);
         }
     };
+
+    private void getExternalIntent(){
+    }
+
+    public static void toSendFile(FdClass fdClass){
+        send_files.add(ToolUtil.getURLDecoderString(fdClass.getFilename()));
+        sendListAdapter.handler.post(sendListAdapter.dataChanged);
+        connectionClient.addNewFd(fdClass);
+    }
 
 }

@@ -139,32 +139,32 @@ public class ServerResponseTask implements Runnable {
                     break;
                 }
 
-                BasicProtocol clientData = SocketUtil.readFromStream(inputStream, 0, ServerResponseTask.this.socket);
+              //  BasicProtocol clientData = SocketUtil.readFromStream(inputStream, 0, ServerResponseTask.this.socket);
 
-                if (clientData != null) {
-                    if (clientData.getProtocolType() == 0) {
-                        System.out.println("dtype: " + ((DataProtocol) clientData).getDtype() + ", pattion: " + ((DataProtocol) clientData).getPattion() + ", msgId: " + ((DataProtocol) clientData).getMsgId() + ", data: " + ((DataProtocol) clientData).getData());
+              //  if (clientData != null) {
+              //      if (clientData.getProtocolType() == 0) {
+              //          System.out.println("dtype: " + ((DataProtocol) clientData).getDtype() + ", pattion: " + ((DataProtocol) clientData).getPattion() + ", msgId: " + ((DataProtocol) clientData).getMsgId() + ", data: " + ((DataProtocol) clientData).getData());
 
-                        DataAckProtocol dataAck = new DataAckProtocol();
-                        dataAck.setUnused("收到消息：" + ((DataProtocol) clientData).getData());
-                        dataQueue.offer(dataAck);
-                        toNotifyAll(dataQueue); //唤醒发送线程
+              //          DataAckProtocol dataAck = new DataAckProtocol();
+              //          dataAck.setUnused("收到消息：" + ((DataProtocol) clientData).getData());
+              //          dataQueue.offer(dataAck);
+              //          toNotifyAll(dataQueue); //唤醒发送线程
 
-                        tBack.targetIsOnline(userIP);
-                    } else if (clientData.getProtocolType() == 2) {
-                        System.out.println("pingId: " + ((PingProtocol) clientData).getPingId());
+              //          tBack.targetIsOnline(userIP);
+              //      } else if (clientData.getProtocolType() == 2) {
+              //          System.out.println("pingId: " + ((PingProtocol) clientData).getPingId());
 
-                        PingAckProtocol pingAck = new PingAckProtocol();
-                        pingAck.setUnused("收到心跳");
-                        dataQueue.offer(pingAck);
-                        toNotifyAll(dataQueue); //唤醒发送线程
+              //          PingAckProtocol pingAck = new PingAckProtocol();
+              //          pingAck.setUnused("收到心跳");
+              //          dataQueue.offer(pingAck);
+              //          toNotifyAll(dataQueue); //唤醒发送线程
 
-                        tBack.targetIsOnline(userIP);
-                    }
-                } else {
-                    System.out.println("client is offline...");
-                    break;
-                }
+              //          tBack.targetIsOnline(userIP);
+              //      }
+              //  } else {
+              //      System.out.println("client is offline...");
+              //      break;
+              //  }
             }
 
             SocketUtil.closeInputStream(inputStream);
