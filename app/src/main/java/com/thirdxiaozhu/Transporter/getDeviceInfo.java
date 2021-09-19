@@ -8,8 +8,8 @@ public class getDeviceInfo {
     private String deviceIP;
     private String deviceMac;
 
-    public getDeviceInfo(MainActivity mainActivity){
-        NetworkUtil util = new NetworkUtil(mainActivity);
+    public getDeviceInfo(BasicActivity basicActivity){
+        NetworkUtil util = new NetworkUtil(basicActivity);
         getDeviceName();
         getDeviceIP(util);
         Log.d("Tag", "IP: " + this.deviceIP);

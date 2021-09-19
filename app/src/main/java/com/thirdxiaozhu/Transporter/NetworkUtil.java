@@ -19,12 +19,10 @@ import java.util.List;
 public class NetworkUtil {
 
     Context context;
-    MainActivity mainActivity;
     private WifiInfo wifiInfo;
 
-    public NetworkUtil(MainActivity mainActivity){
-        this.context = mainActivity;
-        this.mainActivity = mainActivity;
+    public NetworkUtil(BasicActivity basicActivity){
+        this.context = basicActivity;
         wifiInfo = getWIFIInfo();
     }
 

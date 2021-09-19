@@ -17,9 +17,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
         <activity
-            android:name=".GetShareActivity"
-            android:exported="true" >
+            android:name=".SettingActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Top"
+            android:exported="true" /> <!-- <activity -->
+        <!-- android:name=".TestFragment" -->
+        <!-- android:exported="true" /> -->
+        <activity
+            android:name=".bottom"
+            android:exported="true" />
+        <activity
+            android:name=".BasicActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".GetShareActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
 
@@ -34,14 +53,17 @@
 
                 <data android:mimeType="*/*" />
             </intent-filter>
-
         </activity>
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"

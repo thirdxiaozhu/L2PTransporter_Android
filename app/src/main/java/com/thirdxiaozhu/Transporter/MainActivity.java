@@ -1,8 +1,10 @@
 package com.thirdxiaozhu.Transporter;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,7 +13,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -28,118 +32,34 @@ import java.util.Vector;
 /**
  * @author jiaxv
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Fragment {
+    private View view;
     public EditText messages;
     public Handler handler;
     private String scanResult;
-    public static HostInfo currentPC;
-    public static Vector<String> send_files;
-    public static Vector<String> received_files;
-    public static MyListAdapter receiveListAdapter;
-    public static MyListAdapter sendListAdapter;
+    public BasicActivity basicActivity;
     public ListView receiveList;
     public ListView sendList;
-    public static ConnectionClient connectionClient;
 
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initPCInfo();
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.activity_main, container, false);
         handler = new Handler();
 
-        TextView manualLink = (TextView)findViewById(R.id.manualLink);
+        basicActivity = (BasicActivity) getActivity();
+        receiveList = (ListView)this.view.findViewById(R.id.id_receive_list);
+        receiveList.setAdapter(basicActivity.receiveListAdapter);
+        sendList = (ListView)this.view.findViewById(R.id.id_send_text);
+        sendList.setAdapter(basicActivity.sendListAdapter);
 
-        received_files = new Vector<>();
-        receiveList = (ListView)this.findViewById(R.id.id_receive_list);
-        receiveListAdapter = new MyListAdapter(received_files);
-        receiveList.setAdapter(receiveListAdapter);
-        send_files = new Vector<>();
-        sendList = (ListView)this.findViewById(R.id.id_send_text);
-        sendListAdapter = new MyListAdapter(send_files);
-        sendList.setAdapter(sendListAdapter);
-
-        manualLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ManualLinkDialog mld = new ManualLinkDialog(MainActivity.this);
-                mld.show(getFragmentManager(), "ManualLinkDialog");
-            }
-        });
+        return view;
     }
 
     public void onConnect(View view){
 
     }
-
-
-    public void onScan(View view){
-        // 创建IntentIntegrator对象
-        IntentIntegrator intentIntegrator = new IntentIntegrator(MainActivity.this);
-        // 开始扫描
-        intentIntegrator.setOrientationLocked(false);
-        intentIntegrator.initiateScan();
-    }
-
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // 获取解析结果
-        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        if (result != null) {
-            if (result.getContents() == null) {
-                Toast.makeText(this, "取消扫描", Toast.LENGTH_LONG).show();
-            } else {
-                try {
-                    connectPC(result.getContents());
-                }catch (Exception e){
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle("警告");
-                    builder.setMessage("无效二维码，请重新扫描");
-                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            System.out.println("点了确定");
-                        }
-                    });
-                    builder.show();
-                }
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    private void connectPC(String IP){
-        connectionClient = new ConnectionClient(this, IP);
-    }
-
-
-    public void manualLink(String result){
-        connectPC(result);
-    }
-
-    public void initPCInfo(){
-        if(currentPC == null){
-            return;
-        }else {
-            EditText pcinfo = (EditText) findViewById(R.id.PCInfomation);
-            pcinfo.setText("");
-            pcinfo.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-            pcinfo.append("  主机名:  " + currentPC.getHostName() + "\n");
-            pcinfo.append("  主机IP:  " + currentPC.getHostIP() + "\n");
-            pcinfo.append("  OS:  " + currentPC.getOSName() + "\n");
-            pcinfo.append("  OS架构:  " + currentPC.getOSArch() + "\n");
-            pcinfo.append("  OS版本:  " + currentPC.getOSVersion() + "\n");
-        }
-    }
-
-    Runnable runable = new Runnable() {
-        @Override
-        public void run() {
-            initPCInfo();
-        }
-    };
 
     public static void receiveFile(String s){
         received_files.add(s);
@@ -156,13 +76,10 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private void getExternalIntent(){
-    }
-
     public static void toSendFile(FdClass fdClass){
         send_files.add(ToolUtil.getURLDecoderString(fdClass.getFilename()));
         sendListAdapter.handler.post(sendListAdapter.dataChanged);
-        connectionClient.addNewFd(fdClass);
+        BasicActivity.connectionClient.addNewFd(fdClass);
     }
 
 }

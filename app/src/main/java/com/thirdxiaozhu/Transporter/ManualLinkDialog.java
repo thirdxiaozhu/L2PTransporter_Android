@@ -1,6 +1,5 @@
 package com.thirdxiaozhu.Transporter;
 
-import android.app.DialogFragment;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -15,23 +14,24 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
 public class ManualLinkDialog extends DialogFragment {
-    MainActivity mainActivity;
+    private SettingActivity settingActivity;
 
-    public ManualLinkDialog(MainActivity mainActivity){
-        this.mainActivity = mainActivity;
+    public ManualLinkDialog(SettingActivity settingActivity){
+        this.settingActivity = settingActivity;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,  Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_manual_link_dialog, container);
-        Button button = (Button)view.findViewById(R.id.link);
-        button.setOnClickListener(new View.OnClickListener() {
+        Button linkButton = (Button)view.findViewById(R.id.link);
+        linkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EditText ip = (EditText)view.findViewById(R.id.ipAddress);
-                mainActivity.manualLink(ip.getText().toString());
+                settingActivity.manualLink(ip.getText().toString());
                 dismiss();
             }
         });
@@ -53,7 +53,6 @@ public class ManualLinkDialog extends DialogFragment {
         Window window = getDialog().getWindow();
         if(window != null){
             window.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-
 
             WindowManager.LayoutParams lp = window.getAttributes();
             lp.dimAmount = 0.3f; //背景灰度

@@ -3,16 +3,25 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../layout/custom_preview.xml" value="0.22083333333333333" />
+        <entry key="app/src/main/res/drawable-v24/card_shape_blue.xml" value="0.303125" />
+        <entry key="app/src/main/res/drawable-v24/card_shape_red.xml" value="0.303125" />
         <entry key="app/src/main/res/drawable/card_shape.xml" value="0.2609375" />
         <entry key="app/src/main/res/drawable/ic_iconfont_saomaio.xml" value="0.2609375" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.22760416666666666" />
+        <entry key="app/src/main/res/layout/activity_basic.xml" value="0.2421875" />
+        <entry key="app/src/main/res/layout/activity_bottom.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_manual_link_dialog.xml" value="0.2421875" />
+        <entry key="app/src/main/res/layout/activity_setting.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/activity_test_fragment.xml" value="0.2421875" />
+        <entry key="app/src/main/res/layout/activity_top.xml" value="0.36770833333333336" />
         <entry key="app/src/main/res/layout/layout_list_cell.xml" value="0.24739583333333334" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2609375" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.2609375" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="15" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_15_PREVIEW" project-jdk-name="15" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

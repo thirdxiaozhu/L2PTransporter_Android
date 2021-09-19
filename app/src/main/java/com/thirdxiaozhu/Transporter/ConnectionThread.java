@@ -1,16 +1,12 @@
 package com.thirdxiaozhu.Transporter;
 
-import android.os.Message;
 import android.util.Log;
-import android.view.textclassifier.ConversationActions;
 
 import com.google.gson.Gson;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,13 +14,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.net.SocketFactory;
 
 import Protocal.BasicProtocol;
-import Protocal.ClientRequestTask;
 import Protocal.DataAckProtocol;
 import Protocal.DataProtocol;
 import Protocal.PingProtocol;
@@ -35,13 +29,14 @@ public class ConnectionThread implements Runnable{
     private static final int SUCCESS = 100;
     private static final int FAILED = -1;
 
-    MainActivity mainActivity;
-    BufferedReader reader;
-    PrintWriter writer;
+    private BasicActivity basicActivity;
+    private MainActivity mainActivity;
+    private SettingActivity settingActivity;
+    private BufferedReader reader;
+    private PrintWriter writer;
     String line;
 
     private boolean isLongConnection = true;
-    //private Handler mHandler;
     private SendTask sendTask;
     private ReciveTask receiveTask;
     private HeartBeatTask heartBeatTask;
@@ -54,19 +49,22 @@ public class ConnectionThread implements Runnable{
 
     protected volatile ConcurrentLinkedQueue<BasicProtocol> dataQueue = new ConcurrentLinkedQueue<>();
 
-    public ConnectionThread(MainActivity mainActivity, String IP){
-        this.mainActivity = mainActivity;
+    public ConnectionThread(BasicActivity basicActivity, String IP){
+        this.basicActivity = basicActivity;
+        this.mainActivity = basicActivity.mainActivity;
+        this.settingActivity = basicActivity.settingActivity;
         this.IP = IP;
-        manageFile = new ManageFile(mainActivity, ConnectionThread.this);
+        manageFile = new ManageFile(basicActivity, ConnectionThread.this);
     }
 
     @Override
     public void run(){
-         try {
+        try {
              try {
                  socket = SocketFactory.getDefault().createSocket(IP, Integer.parseInt("1234"));
                  isSocketAvailable = true;
              }catch (Exception e){
+                 e.printStackTrace();
                  return;
              }
 
@@ -76,12 +74,12 @@ public class ConnectionThread implements Runnable{
 
              //序列化设备信息
              Gson gson = new Gson();
-             writer.write(gson.toJson(new getDeviceInfo(mainActivity))+"\n");
+             writer.write(gson.toJson(new getDeviceInfo(basicActivity))+"\n");
              writer.flush();
 
              //接收服务端传来的主机信息
-             MainActivity.currentPC = gson.fromJson(reader.readLine(), HostInfo.class);
-             mainActivity.handler.post(mainActivity.runable);
+             SettingActivity.currentPC = gson.fromJson(reader.readLine(), HostInfo.class);
+             mainActivity.handler.post(settingActivity.runable);
 
              //开启接收线程
              receiveTask = new ReciveTask();

@@ -5,117 +5,58 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity" >
+    android:background="@color/grey"
+    tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/head"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/PCInfomation"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_margin="10dp"
-            android:layout_weight="10"
-            android:background="@drawable/card_shape"
-            android:editable="false"
-            android:ems="10"
-            android:gravity="start|top"
-            android:text="尚未连接到任何PC"
-            android:textAlignment="center"
-            android:textSize="14sp" />
+        android:layout_height="wrap_content">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <Space
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="25dp" />
+                android:layout_height="350dp"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView1"
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="收到的文件:" />
+
+                <ListView
+                    android:id="@+id/id_receive_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/card_shape" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="扫码连接"
-                android:textSize="10sp" />
+                android:layout_height="350dp"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
 
-            <ImageButton
-                android:id="@+id/scanQRCode"
-                android:layout_width="72dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="#00ff0000"
-                android:onClick="onScan"
-                app:srcCompat="@drawable/ic_iconfont_saomaio" />
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="发送的文件:" />
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="25dp" />
+                <ListView
+                    android:id="@+id/id_send_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/card_shape" />
 
-            <TextView
-                android:id="@+id/manualLink"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textAlignment="center"
-                android:text="手动连接" />
-
+            </LinearLayout>
         </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="253dp"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="收到的文件:" />
-
-        <ListView
-            android:id="@+id/id_receive_list"
-            android:layout_width="match_parent"
-            android:layout_height="234dp"
-            android:background="@drawable/card_shape" />
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="253dp"
-        android:layout_margin="10dp"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="发送的文件:" />
-
-        <ListView
-            android:id="@+id/id_send_text"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/card_shape" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/bottom"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal"/>
-
+    </ScrollView>
 
 
 </LinearLayout>

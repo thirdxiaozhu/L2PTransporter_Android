@@ -23,14 +23,16 @@ public class ManageFile {
     protected volatile ConcurrentLinkedQueue<DataProtocol> dataQueue;
     protected volatile ConcurrentLinkedQueue<FdClass> fdQueue;
     private ConnectionThread connectionThread;
+    private BasicActivity basicActivity;
     private MainActivity mainActivity;
     private GenerateFile generateFile;
     private GenerateMessage generateMessage;
 
-    public ManageFile(MainActivity mainActivity, ConnectionThread connectionThread) {
+    public ManageFile(BasicActivity basicActivity, ConnectionThread connectionThread) {
         dataQueue = new ConcurrentLinkedQueue<>();
         fdQueue = new ConcurrentLinkedQueue<>();
-        this.mainActivity = mainActivity;
+        this.basicActivity = basicActivity;
+        this.mainActivity = basicActivity.mainActivity;
         this.connectionThread = connectionThread;
         generateFile = new GenerateFile();
         generateFile.start();
@@ -90,7 +92,7 @@ public class ManageFile {
                             fileName = ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim());
                             MainActivity.receiveFile(ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim()));
 
-                            File file = new File(mainActivity.getExternalFilesDir("received/" + MainActivity.currentPC.getHostName()), fileName);
+                            File file = new File(basicActivity.getExternalFilesDir("received/" + SettingActivity.currentPC.getHostName()), fileName);
 
                             fos = new FileOutputStream(file);
                             length = 0;

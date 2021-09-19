@@ -10,8 +10,8 @@ public class ConnectionClient {
 
     private ConnectionThread connectionThread;
 
-    public ConnectionClient(MainActivity mainActivity, String IP) {
-        connectionThread = new ConnectionThread(mainActivity, IP);
+    public ConnectionClient(BasicActivity basicActivity, String IP) {
+        connectionThread = new ConnectionThread(basicActivity, IP);
         new Thread(connectionThread).start();
     }
 
