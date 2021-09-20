@@ -34,7 +34,6 @@ public class ConnectionThread implements Runnable{
     private SettingActivity settingActivity;
     private BufferedReader reader;
     private PrintWriter writer;
-    String line;
 
     private boolean isLongConnection = true;
     private SendTask sendTask;
@@ -42,6 +41,7 @@ public class ConnectionThread implements Runnable{
     private HeartBeatTask heartBeatTask;
     private Socket socket;
     private String IP;
+    private String port;
 
     private boolean isSocketAvailable;
     private boolean closeSendTask;
@@ -49,11 +49,11 @@ public class ConnectionThread implements Runnable{
 
     protected volatile ConcurrentLinkedQueue<BasicProtocol> dataQueue = new ConcurrentLinkedQueue<>();
 
-    public ConnectionThread(BasicActivity basicActivity, String IP){
+    public ConnectionThread(BasicActivity basicActivity, String iPwithPort){
         this.basicActivity = basicActivity;
         this.mainActivity = basicActivity.mainActivity;
         this.settingActivity = basicActivity.settingActivity;
-        this.IP = IP;
+
         manageFile = new ManageFile(basicActivity, ConnectionThread.this);
     }
 
@@ -61,7 +61,7 @@ public class ConnectionThread implements Runnable{
     public void run(){
         try {
              try {
-                 socket = SocketFactory.getDefault().createSocket(IP, Integer.parseInt("1234"));
+                 socket = SocketFactory.getDefault().createSocket(IP, Integer.parseInt(port));
                  isSocketAvailable = true;
              }catch (Exception e){
                  e.printStackTrace();
@@ -108,7 +108,8 @@ public class ConnectionThread implements Runnable{
             return;
         }
         dataQueue.add(data);
-        toNotifyAll(dataQueue);//有新增待发送数据，则唤醒发送线程
+        //有新增待发送数据，则唤醒发送线程
+        toNotifyAll(dataQueue);
     }
 
     public synchronized void stop() {
@@ -249,33 +250,6 @@ public class ConnectionThread implements Runnable{
         return true;
     }
 
-    /**
-     * 服务器返回处理，主线程运行
-     */
-    //public class MyHandler extends Handler {
-
-    //    private RequestCallBack mRequestCallBack;
-
-    //    public MyHandler(RequestCallBack callBack) {
-    //        super(Looper.getMainLooper());
-    //        this.mRequestCallBack = callBack;
-    //    }
-
-    //    @Override
-    //    public void handleMessage(Message msg) {
-    //        super.handleMessage(msg);
-    //        switch (msg.what) {
-    //            case SUCCESS:
-    //                mRequestCallBack.onSuccess((BasicProtocol) msg.obj);
-    //                break;
-    //            case FAILED:
-    //                mRequestCallBack.onFailed(msg.arg1, (String) msg.obj);
-    //                break;
-    //            default:
-    //                break;
-    //        }
-    //    }
-    //}
 
     public class ReciveTask extends Thread {
 
@@ -305,7 +279,11 @@ public class ConnectionThread implements Runnable{
                             toNotifyAll(dataQueue); //唤醒发送线程
                         }
                     } else {
+
+                        //断开连接
                         Log.d("Tag", "isBreak");
+                        SettingActivity.currentPC = null;
+                        mainActivity.handler.post(settingActivity.runable);
                         break;
                     }
                 }

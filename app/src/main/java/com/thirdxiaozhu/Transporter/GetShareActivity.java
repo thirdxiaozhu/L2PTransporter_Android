@@ -7,13 +7,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
-import android.util.Log;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Arrays;
 
 public class GetShareActivity extends AppCompatActivity {
     private FileInputStream inputStream = null;
@@ -39,7 +35,7 @@ public class GetShareActivity extends AppCompatActivity {
         // 利用FileDescriptor对象建立文件输入流(FileInputStream)
         if(fd != null) {
             inputStream = new FileInputStream(fd.getFileDescriptor());
-            MainActivity.toSendFile(new FdClass(uri[uri.length-1], fd));
+            BasicActivity.toSendFile(new FdClass(uri[uri.length-1], fd));
         }
 
 

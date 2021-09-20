@@ -24,7 +24,6 @@ public class ManageFile {
     protected volatile ConcurrentLinkedQueue<FdClass> fdQueue;
     private ConnectionThread connectionThread;
     private BasicActivity basicActivity;
-    private MainActivity mainActivity;
     private GenerateFile generateFile;
     private GenerateMessage generateMessage;
 
@@ -32,7 +31,6 @@ public class ManageFile {
         dataQueue = new ConcurrentLinkedQueue<>();
         fdQueue = new ConcurrentLinkedQueue<>();
         this.basicActivity = basicActivity;
-        this.mainActivity = basicActivity.mainActivity;
         this.connectionThread = connectionThread;
         generateFile = new GenerateFile();
         generateFile.start();
@@ -90,7 +88,7 @@ public class ManageFile {
                             fileLength = Long.parseLong( fileMessage.split("--")[2]);
 
                             fileName = ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim());
-                            MainActivity.receiveFile(ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim()));
+                            basicActivity.receiveFile(ToolUtil.hexStr2Str(fileMessage.split("--")[1].trim()));
 
                             File file = new File(basicActivity.getExternalFilesDir("received/" + SettingActivity.currentPC.getHostName()), fileName);
 
@@ -103,7 +101,7 @@ public class ManageFile {
                             fos.flush();
 
                             if(fileLength != null && length >= fileLength){
-                                MainActivity.receiveListAdapter.finishTask(mainActivity.updatebarHandler, fileName);
+                                basicActivity.receiveListAdapter.finishTask(basicActivity.updatebarHandler, fileName);
                             }
                         }
                     }
@@ -142,7 +140,7 @@ public class ManageFile {
                             data = null;
                             data = new byte[BUFFERLENGTH];
                         }
-                        MainActivity.sendListAdapter.finishTask(mainActivity.updatebarHandler, fileName);
+                        basicActivity.sendListAdapter.finishTask(basicActivity.updatebarHandler, fileName);
                     }
                 }
             } catch (Exception e) {

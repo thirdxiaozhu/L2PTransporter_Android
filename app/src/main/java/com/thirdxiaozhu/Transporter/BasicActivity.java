@@ -1,5 +1,6 @@
 package com.thirdxiaozhu.Transporter;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -9,6 +10,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -26,12 +29,13 @@ import java.util.Vector;
 public class BasicActivity extends FragmentActivity implements View.OnClickListener {
 
     public static ConnectionClient connectionClient;
+    public static BasicActivity Instance = null;
     public MainActivity mainActivity;
     public SettingActivity settingActivity;
     public static Vector<String> send_files;
     public static Vector<String> received_files;
-    public static MyListAdapter receiveListAdapter;
     public static MyListAdapter sendListAdapter;
+    public static MyListAdapter receiveListAdapter;
 
     //声明ViewPager
     private ViewPager viewPager;
@@ -53,6 +57,7 @@ public class BasicActivity extends FragmentActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_basic);
+        Instance = BasicActivity.this;
         received_files = new Vector<>();
         receiveListAdapter = new MyListAdapter(received_files);
         send_files = new Vector<>();
@@ -127,6 +132,7 @@ public class BasicActivity extends FragmentActivity implements View.OnClickListe
         mTab3 = (LinearLayout) findViewById(R.id.id_tab3);
 
         mImg1 = (ImageButton) findViewById(R.id.id_tab_img1);
+        mImg1.setImageResource(R.drawable.ic_iconfont_20_blue);
         mImg2 = (ImageButton) findViewById(R.id.id_tab_img2);
         mImg3 = (ImageButton) findViewById(R.id.id_tab_img3);
     }
@@ -152,12 +158,13 @@ public class BasicActivity extends FragmentActivity implements View.OnClickListe
     }
 
     private void selectTab(int i){
+        resetImgs();
         switch (i){
             case 0:
-                mImg1.setImageResource(R.drawable.ic_iconfont_20);
+                mImg1.setImageResource(R.drawable.ic_iconfont_20_blue);
                 break;
             case 1:
-                mImg3.setImageResource(R.drawable.ic_iconfont_icon_xitong);
+                mImg3.setImageResource(R.drawable.ic_iconfont_icon_xitong_blue);
                 break;
             default:
                 break;
@@ -210,8 +217,42 @@ public class BasicActivity extends FragmentActivity implements View.OnClickListe
         }
     }
 
-    public void connectPC(String IP){
-        connectionClient = new ConnectionClient(BasicActivity.this, IP);
+    public void connectPC(String IPwithPort){
+        connectionClient = new ConnectionClient(BasicActivity.this, IPwithPort);
     }
+
+    public void receiveFile(String s){
+        received_files.add(s);
+        receiveListAdapter.handler.post(receiveListAdapter.dataChanged);
+    }
+
+    //当传输完成的时候，删除item中的progressbar
+    Handler updatebarHandler = new Handler(){
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            View curritem = (View) msg.obj;
+            Log.d("Tag","Obj: " + curritem);
+            curritem.findViewById(R.id.fileprogress).setVisibility(View.GONE);
+        }
+    };
+
+    public static void toSendFile(FdClass fdClass){
+        send_files.add(ToolUtil.getURLDecoderString(fdClass.getFilename()));
+        sendListAdapter.handler.post(sendListAdapter.dataChanged);
+        BasicActivity.connectionClient.addNewFd(fdClass);
+    }
+
+
+    //@Override
+    //public void onRequestPermissionsResult(int requestCode, String[] permissions,int[] grantResults) {
+    //    switch (requestCode) {
+    //        case 1:
+    //            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+    //                call();
+    //            } else {
+    //                Toast.makeText(this, "抱歉，没有该权限！", Toast.LENGTH_SHORT).show();
+    //            }
+    //    }
+    //}
 
 }

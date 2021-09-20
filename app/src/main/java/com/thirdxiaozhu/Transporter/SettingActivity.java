@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.security.PublicKey;
 import java.util.Vector;
@@ -30,6 +31,8 @@ public class SettingActivity extends Fragment {
         initPCInfo();
 
         LinearLayout manualLink = (LinearLayout) view.findViewById(R.id.manualLink);
+
+        //手动连接layout监听器
         manualLink.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -37,21 +40,34 @@ public class SettingActivity extends Fragment {
                 mld.show(getFragmentManager(), "ManualLinkDialog");
             }
         });
+
+        //断开连接监听器
+        LinearLayout deleteLink = (LinearLayout) view.findViewById(R.id.deleteLink);
+        deleteLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(BasicActivity.connectionClient == null){
+                    Toast.makeText(BasicActivity.Instance,"当前尚未连接任何PC", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                BasicActivity.connectionClient.closeConnect();
+            }
+        });
         return view;
     }
 
     public void initPCInfo(){
+        EditText pcInfo = (EditText) view.findViewById(R.id.PCInfomation);
+        pcInfo.setText("");
         if(currentPC == null){
-            return;
+            pcInfo.append("              尚未连接到任何PC              \n");
         }else {
-            EditText pcinfo = (EditText) view.findViewById(R.id.PCInfomation);
-            pcinfo.setText("");
-            pcinfo.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-            pcinfo.append("  主机名:  " + currentPC.getHostName() + "\n");
-            pcinfo.append("  主机IP:  " + currentPC.getHostIP() + "\n");
-            pcinfo.append("  OS:  " + currentPC.getOSName() + "\n");
-            pcinfo.append("  OS架构:  " + currentPC.getOSArch() + "\n");
-            pcinfo.append("  OS版本:  " + currentPC.getOSVersion() + "\n");
+            pcInfo.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+            pcInfo.append("  主机名:  " + currentPC.getHostName() + "\n");
+            pcInfo.append("  主机IP:  " + currentPC.getHostIP() + "\n");
+            pcInfo.append("  OS:  " + currentPC.getOSName() + "\n");
+            pcInfo.append("  OS架构:  " + currentPC.getOSArch() + "\n");
+            pcInfo.append("  OS版本:  " + currentPC.getOSVersion() + "\n");
         }
     }
 
